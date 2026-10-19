@@ -1,0 +1,40 @@
+apiVersion: v1 # Kubernetes API version
+kind: Namespace # Kubernetes resource kind we are creating
+metadata:
+  name: development # Name of the namespace
+---
+apiVersion: v1 # Kubernetes API version
+kind: Service # Kubernetes resource kind we are creating
+metadata:
+  name: springboot-crud-service # Name of the service
+  namespace: development # Namespace in which the service will be created
+spec:
+  selector:
+    app: springboot-crud-service # Selector to match the pods created by the deployment
+  ports:
+    - protocol: TCP
+      port: 8080 # Port that the service will expose
+      targetPort: 8080 # Port that the service will forward traffic to in the pods
+  type: LoadBalancer # Type of service that will be created (ClusterIP, NodePort, LoadBalancer, ExternalName)
+---
+apiVersion: apps/v1
+kind: Deployment # Kubernetes resource kind we are creating
+metadata:
+  name: springboot-crud-service # Name of the deployment
+  namespace: development # Namespace in which the deployment will be created
+spec:
+  selector:
+    matchLabels:
+      app: springboot-crud-service
+  replicas: 2 # Number of replicas that will be created for this deployment
+  template:
+    metadata:
+      labels:
+        app: springboot-crud-service
+    spec:
+      containers:
+        - name: springboot-crud-service
+          image: springboot-crud-service:latest # Image that will be used to containers in the cluster
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080 # The port that the container is running on in the cluster
